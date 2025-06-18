@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador HGW</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --color-fondo: #0f0f0f;
+      --color-borde: #2e7d32;
+      --color-primario: #7fff7f;
+      --color-secundario: #b0ffb0;
+      --color-texto: #e0ffe0;
+      --color-fondo-seccion: #1a1a1a;
+      --color-titulo: #003300;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--color-fondo); 
+      color: var(--color-texto); 
+      margin: 0; 
+      padding: 1rem; 
+    }
+    
+    header { 
+      background-color: var(--color-titulo); 
+      text-align: center; 
+      padding: 1rem; 
+      border-radius: 6px;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    
+    .titulo { 
+      color: var(--color-primario); 
+      font-size: 2rem; 
+      margin: 0.5rem 0;
+    }
+    
+    .frase { 
+      color: var(--color-secundario); 
+      font-size: 1rem; 
+      margin: 0.3rem 0;
+    }
+    
+    .container { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 1rem; 
+    }
+    
+    .section { 
+      background: var(--color-fondo-seccion); 
+      border: 1px solid var(--color-borde); 
+      border-radius: 6px; 
+      padding: 1rem; 
+      flex: 1 1 300px; 
+    }
+    
+    label, input, select, button { 
+      display: block; 
+      width: 100%; 
+      margin: 0.5rem 0; 
+      font-size: 0.9rem; 
+    }
+    
+    input, select { 
+      background-color: #111; 
+      color: var(--color-texto); 
+      border: 1px solid #55cc55; 
+      border-radius: 4px; 
+      padding: 0.5rem; 
+    }
+    
+    button {
+      background-color: var(--color-primario);
+      color: #000;
+      font-weight: bold;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: auto;
+      min-width: 80px;
+      max-width: 140px;
+    }
+    
+    canvas {
+      background: #fff;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+    }
+    
+    .result {
+      margin-top: 0.5rem;
+      font-weight: bold;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    th, td {
+      border: 1px solid var(--color-borde);
+      padding: 0.3rem;
+      text-align: center;
+    }
+    
+    .tabla-input input {
+      width: 100%;
+    }
+    
+    .linea-extra {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      align-items: center;
+    }
+    
+    .linea-extra select {
+      flex: 1;
+      background-color: #111;
+      color: var(--color-texto);
+      border: 1px solid #55cc55;
+      border-radius: 4px;
+      padding: 0.5rem;
+    }
+    
+    .linea-extra input {
+      width: 80px;
+      background-color: #111;
+      color: var(--color-texto);
+      border: 1px solid #55cc55;
+      border-radius: 4px;
+      padding: 0.5rem;
+    }
+    
+    .tabs-container {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center; /* Centra horizontalmente */
+      gap: 0.5rem; /* Espacio entre pestañas */
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .tab-button {
+      background-color: #1a1a1a;
+      border: 1px solid var(--color-borde);
+      color: var(--color-texto);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    
+    .tab-button.active {
+      background-color: var(--color-primario);
+      color: #000;
+      border-color: var(--color-primario);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .ticker {
+      background-color: #111;
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    
+    .ticker-content {
+      white-space: nowrap;
+      animation: ticker 45s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    
+.pdf-upload-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.pdf-upload-label {
+  background-color: var(--color-primario);
+  color: #000;
+  font-weight: bold;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.pdf-upload-label:hover {
+  background-color: var(--color-secundario);
+}
+
+.pdf-viewer {
+  position: relative;
+  height: 600px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-borde);
+}
+
+.pdf-viewer iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Asegura que el iframe ocupe toda la pantalla */
+#visorPDF:-webkit-full-screen {
+   width: 100vw !important;
+   height: 100vh !important;
+   background: white;
+}
+
+#visorPDF:-moz-full-screen {
+   width: 100vw !important;
+   height: 100vh !important;
+}
+
+#visorPDF:-ms-fullscreen {
+   width: 100vw !important;
+   height: 100vh !important;
+}
+
+#visorPDF:fullscreen {
+   width: 100vw !important;
+   height: 100vh !important;
+}
+    /* Distribución en 3 columnas iguales */
+.negocio-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.negocio-grid .section {
+  flex: 1 1 30%;
+  min-width: 280px;
+  box-sizing: border-box;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 768px) {
+  .negocio-grid {
+    flex-direction: column;
+  }
+
+  .negocio-grid .section {
+    flex: 1 1 100%;
+  }
+}
+    .fullscreen-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    
+    .info-legal {
+      margin: 1rem 0;
+      padding: 1rem;
+      background-color: #1a1a1a;
+      border: 1px solid var(--color-borde);
+      border-radius: 4px;
+    }
+
+    /* Estilos para calendario flotante */
+    #floatingCalendar {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #1a1a1a;
+      border: 2px solid var(--color-primario);
+      border-radius: 8px;
+      padding: 20px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 0 15px rgba(127, 255, 127, 0.5);
+    }
+    
+    #floatingCalendar h3 {
+      margin-top: 0;
+      color: var(--color-primario);
+      text-align: center;
+    }
+    
+    #calendarClose {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--color-primario);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    
+    #calendarOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 999;
+      display: none;
+    }
+    
+    .global-data {
+      background-color: #1a3a1a;
+      border: 2px solid var(--color-primario);
+      padding: 0.5rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    .global-data-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .global-data label {
+      margin: 0;
+      width: auto;
+      font-weight: bold;
+    }
+    
+    .global-data input, .global-data select {
+      width: auto;
+      margin: 0;
+    }
+    
+    .calendar-btn {
+      background-color: #55cc55;
+      color: #000;
+      font-weight: bold;
+      padding: 0.3rem 0.6rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+/* Añadir estos estilos al final de la sección CSS */
+.tree-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: none;
+}
+
+.tree-modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color:#F2F2F2;
+  border: 2px solid #2E7D32;
+  border-radius: 8px;
+  padding: 20px;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1001;
+  display: none;
+}
+
+.tree-panel {
+  width: 100%;
+  padding: 10px;
+}
+
+.tree-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.tree-section, .metrics-section {
+  background-color: #EAEAEA;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #2E7D32;
+}
+
+.tree-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 0 auto;
+  background-color: #EAEAEA;
+  border-radius: 4px;
+  padding: 10px;
+  box-sizing: border-box;
+  height: 800px;
+}
+  }
+
+.tree {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: auto;
+}
+
+.level {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.node {
+  position: relative;
+  margin: 0 8px 10px 8px;
+}
+
+.node-box {
+  width: 60px;
+  height: 40px;
+  background-color: #e8f5e9;
+  color: #2E7D32;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 2;
+  font-size: 12px;
+  word-break: break-word;
+  overflow: hidden;
+  border: 1px solid #a5d6a7;
+}
+
+        .controls {
+            margin: 10px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+.level-label {
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #2E7D32;
+  font-size: 14px;
+  width: 100%;
+}
+
+.chart-container {
+  width: 100%;
+  height: 250px;
+  margin-bottom: 20px;
+}
+
+.chart-label {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 14px;
+  color: #003300;
+}
+
+.data-box {
+  background-color: #f7fbf7;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  border: 1px solid #2E7D32;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed #2E7D32;
+}
+
+.data-item:last-child {
+  border-bottom: none;
+}
+
+.data-label {
+  font-weight: bold;
+  color: #003300;
+}
+
+.data-value {
+  font-weight: bold;
+  color: #003300;
+}
+
+.progress-container {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #1a3a1a;
+}
+
+.progress-bar {
+  height: 10px;
+  background-color: #e8f5e9;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+#treeClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #003300;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#treeFullscreen {
+  position: absolute;
+  top: 10px;
+  right: 50px;
+  background: #2E7D32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 14px;
+}
+
+/* Estilos para pantalla completa */
+.tree-modal-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  padding: 20px !important;
+  transform: none !important;
+  overflow: auto !important;
+}
+
+.tree-modal-fullscreen .tree-grid {
+  grid-template-columns: 1fr;
+}
+
+.tree-modal-fullscreen .tree-container {
+  height: 60vh !important;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .tree-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tree-container {
+    height: 300px;
+  }
+  
+  .node-box {
+    width: 50px;
+    height: 35px;
+    font-size: 11px;
+  }
+  
+  .chart-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .node-box {
+    width: 40px;
+    height: 30px;
+    font-size: 10px;
+  }
+  
+  .controls button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .tree-container {
+    height: 250px;
+  }
+}
+
+/* Estilos para el catálogo de productos */
+.catalogo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.producto {
+  background-color: var(--color-fondo-seccion);
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  padding: 1.2rem;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.producto:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(127, 255, 127, 0.2);
+}
+
+.producto img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  border: 1px solid #55cc55;
+  background-color: #fff;
+  padding: 0.5rem;
+}
+
+.producto h3 {
+  color: var(--color-primario);
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.producto p {
+  color: var(--color-secundario);
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .catalogo {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .producto img {
+    height: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalogo {
+    grid-template-columns: 1fr;
+  }
+}
+
+</style>
+</head>
+<body>
+<script>
+  const claveCorrecta = "1";
+  const ingreso = prompt(
+    "🔐 Ingreso exclusivo con contraseña\n\n" +
+    "📌 No compartas este acceso.\n" +
+    "🚫 Uso exclusivo e intransferible.\n\n" +
+    "Por favor, ingresa tu clave:"
+  );
+
+  if (ingreso !== claveCorrecta) {
+    alert("❌ Contraseña incorrecta. Acceso denegado.");
+    window.location.href = "https://google.com";
+  }
+</script>
+<header>
+  <!-- 📈 Título centrado -->
+<div style="text-align: center; margin-top: 5px;">
+  <h1 style="margin: 6px 0 2px; font-size: 2rem; color: #7fff7f;">📈 Simulador HGW</h1>
+  <p style="margin: 0 0 6px; font-size: 1.2rem; color: #FFFFFF;">Conocer tu negocio es la mitad de tu éxito</p>
+  </div>
+
+  <!-- 🔐 Cuadro de usuario, pegado arriba a la izquierda -->
+  <div style="display: flex; justify-content: center; gap: 15px; color: #FFFFFF; font-size: 0.70rem; font-family: 'Poppins', sans-serif; margin-top: 4px;">
+    <span><strong>🔐 Usuario:</strong> Keren Atencio</span>
+    <span><strong>🔑 Código:</strong> HGW-2025-0147</span>
+  <div style="color: #FFFFFF;">
+  <a href="https://wa.me/573135727768?text=Hola%2C%20necesito%20ayuda%20con%20el%20simulador" target="_blank"
+   style="color: white;"font-size: 0.70rem; text-decoration: none; vertical-align: middle;">
+   ✅Consulta aquí la licencia de uso</a>
+  </div>
+</div>
+</header> 
+
+<!-- Sistema de pestañas -->
+<div class="tabs-container">
+  <button class="tab-button active" onclick="openTab(event, 'Balance')">💰 Balance</button>
+  <button class="tab-button" onclick="openTab(event, 'Entrenamiento')">🎓 Entrenamiento</button>
+  <button class="tab-button" onclick="openTab(event, 'Negocio')">🏢 Negocio</button>
+ </div>
+</div>
+
+<!-- Contenedor global de datos -->
+<div class="global-data">
+  <div class="global-data-item">
+    <label>ID Usuario:</label>
+    <input type="text" id="globalUserId" value="pibvaliu@gmail.com" readonly>
+  </div>
+  <div class="global-data-item">
+    <button class="calendar-btn" onclick="showCalendar('globalDate')">📅</button>
+    <input type="text" id="globalDate" placeholder="Seleccionar fecha" readonly>
+  </div>
+</div>
+
+<!-- Contenido de la pestaña Balance -->
+<div id="Balance" class="tab-content active">
+  <div class="container">
+    <div class="section">
+      <h2>🚀 Bono Inicio Rápido</h2>
+      <input type="hidden" id="idUsuario" value="pibvaliu@gmail.com">
+      <label>ID Afiliado:</label>
+      <input type="text" id="idAfiliado">
+      <label>Membresía Afiliado:</label>
+      <select id="membresiaAfiliado">
+        <option value="">Selecciona</option>
+        <option value="50">50 BV - $350,000 COP</option>
+        <option value="100">100 BV - $700,000 COP</option>
+        <option value="300">300 BV - $2,200,000 COP</option>
+        <option value="600">600 BV - $4,400,000 COP</option>
+      </select>
+
+      <label>Cant. Afiliados:</label>
+      <input type="number" id="globalAfiliados" value="1" min="1">
+      <button class="calendar-btn" onclick="showCalendar('fechaInicio')">📅</button>
+      <input type="text" id="fechaInicio" placeholder="Seleccionar fecha" readonly>
+      <button onclick="guardarBono()">💾 Guardar</button>
+      <button onclick="limpiarInicioRapido()">🧹Limpiar</button>
+      <button onclick="calcularInicioRapido()">Calcular</button>
+      <div class="result">Inicio rápido: <span id="resultInicioRapido">$0</span></div>
+    </div>
+
+    <!-- Bono Venta -->
+    <div class="section">
+      <h2>🛍 Bono Venta</h2>
+      <input type="hidden" id="idUsuarioVenta" value="pibvaliu@gmail.com">
+      <label>Valor de Compra (COP):</label>
+      <input type="number" id="valorCompra" value="0">
+      <label>Porcentaje de Ganancia:</label>
+      <select id="porcentajeGanancia">
+        <option value="30">30%</option>
+        <option value="40">40%</option>
+        <option value="50">50%</option>
+        <option value="60">60%</option>
+        <option value="100">100%</option>
+      </select>
+      <button class="calendar-btn" onclick="showCalendar('fechaVenta')">📅</button>
+      <input type="text" id="fechaVenta" placeholder="Seleccionar fecha" readonly>
+      <button onclick="guardarBono('venta')">💾 Guardar</button>
+      <button onclick="limpiarBono('venta')">🧹Limpiar</button>
+      <button onclick="calcularVentaBalance()">Calcular</button>
+      <div class="result">Venta: <span id="resultVenta">$0</span></div>    
+    </div>
+
+    <!-- Bono Desarrollo -->
+    <div class="section">
+      <h2>📚 Bono Desarrollo</h2>
+      <input type="hidden" id="idUsuarioDesarrollo" value="pibvaliu@gmail.com">
+      <label>Membresía Usuario:</label>
+      <select id="memUsuario">
+        <option value="">Selecciona</option>
+        <option value="prejr">Pre-junior</option>
+        <option value="jr">junior</option>
+        <option value="sr">senior</option>
+        <option value="master">master</option>
+      </select>
+      <label>Membresía Afiliado:</label>
+      <select id="memAfiliado">
+        <option value="">Selecciona</option>
+        <option value="prejr">Pre-junior</option>
+        <option value="jr">junior</option>
+        <option value="sr">senior</option>
+        <option value="master">master</option>
+      </select>
+      <label>Nivel:</label>
+      <select id="nivelDesarrollo">
+        <option value="1">Nivel 1</option>
+        <option value="2">Nivel 2</option>
+        <option value="3">Nivel 3</option>
+        <option value="4">Nivel 4</option>
+        <option value="5">Nivel 5</option>
+        <option value="6">Nivel 6</option>
+        <option value="7">Nivel 7</option>
+        <option value="8">Nivel 8</option>
+        <option value="9">Nivel 9</option>
+        <option value="10">Nivel 10</option>
+      </select>
+      <button class="calendar-btn" onclick="showCalendar('fechaDesarrollo')">📅</button>
+      <input type="text" id="fechaDesarrollo" placeholder="Seleccionar fecha" readonly>
+      <button onclick="guardarBono('desarrollo')">💾 Guardar</button>
+      <button onclick="limpiarBonoDesarrollo()">🧹 Limpiar</button>
+      <button onclick="calcularDesarrollo()">Calcular</button>
+      <div class="result">Desarrollo: <span id="resultDesarrollo">$0</span></div>
+    </div>
+
+    <!-- Bono Ganancia Estrategia -->
+    <div class="section">
+      <h2>🎯 Bono Ganancia Estrategia</h2>
+      <input type="hidden" id="idUsuarioEstrategia" value="pibvaliu@gmail.com">
+      <label>Ganancia 3x3:</label>
+      <input type="number" id="ganancia3x3" value="0">
+      <button class="calendar-btn" onclick="showCalendar('fechaEstrategia')">📅</button>
+      <input type="text" id="fechaEstrategia" placeholder="Seleccionar fecha" readonly>
+      <button onclick="guardarBono()">💾 Guardar</button>
+      <button onclick="limpiarGanancia()">🧹Limpiar</button>
+      <button onclick="calcularGananciaEstrategia()">Calcular</button>
+      <div class="result">Ganancia Estrategia: <span id="resultEstrategia">$0</span></div>
+    </div>
+
+    <!-- Totales -->
+    <div class="section">
+      <h2>💰 Totales Generales</h2>
+      <div class="result">Suma Total: <span id="sumaTotal">$0</span></div>
+      <button onclick="guardarTotales()">💾 Guardar Totales</button>
+      <button onclick="limpiarTotalesBonos()">Limpiar Totales</button>
+      <button onclick="calcularBalanceBonos()">📌 Calcular Totales Generales</button>
+    </div>
+   </div>
+  </div> 
+
+<!-- Contenido de pestañas -->
+<div id="Entrenamiento" class="tab-content">
+  <div class="ticker">
+    <div class="ticker-content">
+      📉 Desempleo: 10.8% | 🛒 Canasta familiar: $1,200,000 COP | 🚰 Agua potable: 96.6% | 🚌 Transporte público: 58.2% | 🏫 Educación básica: 91.5% | 💼 Salario mínimo: $1,300,000 COP | 📊 PIB: 3.2% | 🏦 Tasa interés: 10.25% | 📚 Alfabetismo: 94.7% | 🧑‍🏫 Esperanza de vida: 76 años | 🏠 Propiedad de vivienda: 42.3%  | 📶 Internet: 64.1% 
+  </div>
+</div> 
+
+ <div class="container">
+    <div class="section">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>🧾 Registro Red</h2>
+        <button onclick="toggleArbol()" style="background-color:#2E7D32; color:white; padding:6px 12px; border:none; border-radius:20px; font-size:13px; cursor:pointer;">
+          🌳 Árbol de red
+        </button>
+      </div>
+      <table class="tabla-input">
+        <thead>
+          <tr><th>ID</th><th>Nombre</th><th>Membresía</th><th>Rol</th><th>Teléfono</th></tr>
+        </thead>
+        <tbody id="tablaRed"></tbody>
+      </table>
+      <button onclick="agregarFila()">Agregar fila</button>
+      <button onclick="descargarExcel()">📥 Descargar Excel</button>
+      <button onclick="limpiarTabla()">🧹 Limpiar Tabla</button>	
+        <button onclick="calcularTotalesEntrenamiento()">📌 Calcular Totales</button>
+      <button onclick="limpiarBonos()">🧹 Limpiar Bonos</button>
+      <div class="result">Total Diario: <span id="totalDiarioEntrenamiento">$0</span></div>
+      <div class="result">Acumulado Mensual: <span id="totalMensualEntrenamiento">$0</span></div>
+    </div>
+
+    <div class="section">
+      <h2>💰 Bono Inicio Rápido</h2>
+      <label>Membresía:</label>
+      <select id="inicioMembresia">
+        <option value="50">50 BV</option>
+        <option value="100">100 BV</option>
+        <option value="300">300 BV</option>
+        <option value="600">600 BV</option>
+      </select>
+      <label>Número de Afiliados:</label>
+      <input type="number" id="inicioAfiliados" value="0" />
+      <button onclick="calcularInicio()">Calcular</button>
+      <div class="result">Ganancia Inicio Rápido: <span id="resInicio">$0</span></div>
+    </div>
+
+    <div class="section">
+      <h2>🛍 Bono Venta al Público</h2>
+      <label>Monto de Venta (COP):</label>
+      <input type="number" id="ventaMonto" value="0" />
+      <label>% de Ganancia:</label>
+      <select id="ventaPorcentaje">
+        <option value="30">30%</option>
+        <option value="50">50%</option>
+      </select>
+      <button onclick="calcularVentaEntrenamiento()">Calcular</button>
+      <div class="result">Ganancia Venta: <span id="resVenta">$0</span></div>
+    </div>
+
+    <div class="section">
+      <h2>🔁 Bono Recompra</h2>
+      <label>Cantidad de BV:</label>
+      <input type="number" id="recompraBV" value="0" />
+      <button onclick="calcularRecompra()">Calcular</button>
+      <div class="result">Ganancia Recompra: <span id="resRecompra">$0</span></div>
+    </div>
+
+    <div class="section">
+      <h2>📚 Bono Desarrollo</h2>
+      <label>Selecciona tu membresía:</label>
+      <select id="membresiaDesarrollo">
+        <option value="0.2">pre-junior</option>
+        <option value="0.5">junior</option>
+        <option value="1.5">senior</option>
+        <option value="3.0">master</option>
+      </select>
+
+      <label>BV de primera compra:</label>
+      <input type="number" id="bvDesarrollo" value="0" />
+
+      <label>¿Agregar líneas adicionales?</label>
+      <select id="usarExtrasDesarrollo" onchange="toggleExtrasDesarrollo()">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
+      </select>
+
+      <div id="extrasDesarrollo" style="display: none; margin-top: 1rem;">
+        <h3 style="margin: 0.5rem 0; font-size: 1rem;">Líneas Adicionales</h3>
+        <div class="linea-extra">
+          <select class="membresia-extra">
+            <option value="50">50 BV</option>
+            <option value="100">100 BV</option>
+            <option value="300">300 BV</option>
+            <option value="600">600 BV</option>
+          </select>
+          <input type="number" class="cantidad-extra" placeholder="Cantidad" value="0" min="0">
+        </div>
+
+        <div class="linea-extra">
+          <select class="membresia-extra">
+            <option value="50">50 BV</option>
+            <option value="100">100 BV</option>
+            <option value="300">300 BV</option>
+            <option value="600">600 BV</option>
+          </select>
+          <input type="number" class="cantidad-extra" placeholder="Cantidad" value="0" min="0">
+        </div>
+
+        <div class="linea-extra">
+          <select class="membresia-extra">
+            <option value="50">50 BV</option>
+            <option value="100">100 BV</option>
+            <option value="300">300 BV</option>
+            <option value="600">600 BV</option>
+          </select>
+          <input type="number" class="cantidad-extra" placeholder="Cantidad" value="0" min="0">
+        </div>
+
+        <div class="linea-extra">
+          <select class="membresia-extra">
+            <option value="50">50 BV</option>
+            <option value="100">100 BV</option>
+            <option value="300">300 BV</option>
+            <option value="600">600 BV</option>
+          </select>
+          <input type="number" class="cantidad-extra" placeholder="Cantidad" value="0" min="0">
+        </div>
+      </div>
+
+      <button onclick="calcularDesarrolloEntrenamiento()">Calcular</button>
+      <div class="result">Ganancia Desarrollo: <span id="resDesarrollo">$0</span></div>
+      <div class="result">BV Totales: <span id="bvTotales">0</span></div>
+      <small><em>Fórmula: ((BV + adicionales) × factor × 3800) ÷ 2</em></small>
+    </div>
+
+    <div class="section">
+      <h2>🤝 Bono Equipo</h2>
+      <label>BV Línea 1:</label>
+      <input type="number" id="bv1Equipo" value="0" />
+      <label>BV Línea 2:</label>
+      <input type="number" id="bv2Equipo" value="0" />
+      <label>% de Rango:</label>
+      <select id="porcentajeEquipo">
+        <option value="0.05">PreJr 5%</option>
+        <option value="0.07">Jr 7%</option>
+        <option value="0.08">Sr 8%</option>
+        <option value="0.10">Mst 10%</option>
+      </select>
+      <button onclick="calcularEquipo()">Calcular</button>
+      <div class="result">Ganancia Equipo: <span id="resEquipo">$0</span></div>
+      <small><em>Fórmula: ((min(BV1, BV2) * %gananciaxmemb) / 2) * 3800</em></small>
+    </div>
+
+    <div class="section">
+      <h2>📊 Resultados Totales</h2>
+      <button onclick="calcularTotalesEntrenamiento()">📌 Calcular Totales Generales</button>
+      <button onclick="limpiarBonos()">🧹 Limpiar Bonos</button>
+      <button onclick="guardarTotales()">💾 Guardar Día/Mes</button>
+      <button onclick="descargarCSV()">📤 Descargar CSV</button>
+      <div class="result">Total Diario: <span id="totalDiarioEntrenamiento2">$0</span></div>
+      <div class="result">Acumulado Mensual: <span id="totalMensualEntrenamiento2">$0</span></div>
+    </div>
+  </div>
+</div> 
+
+<!-- Contenido de la pestaña Negocio -->
+<div id="Negocio" class="tab-content">
+  <div class="ticker">
+    <div class="ticker-content">
+Arandanos 19,33 USD/kg | 🇨🇳🇨🇴 PIB percapita China vs Colombia:≈ 50 mill vs 30 | Deficit comercial: -51 billones | 🇨🇳 Crecimiento China: 5.2% | 📉 Desempleo China: 5.2% | 🇨🇴 Inflación Colombia: 8.5% | 🌎 Exportaciones: $45B | 💰 Reservas China: $3.2T | 🏭 Producción industrial: 4.8%  | iva 19% 
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="section">
+      <h2>📂 Cargar y Ver Presentacion</h2>
+      <div class="pdf-upload-container">
+    <label for="cargadorPDF" class="pdf-upload-label">📁 Seleccionar PDF</label>
+    <input type="file" id="cargadorPDF" accept="application/pdf" style="display:none;" onchange="verPdf(event)">
+  </div>
+
+<div class="pdf-viewer">
+   <iframe id="visorPDF" style="width:100%; height:100%;" frameborder="0"></iframe>
+</div>
+
+<button onclick="togglePDFFullscreen()" class="fullscreen-btn">🖥️ Pantalla Completa</button>
+</div>
+   
+    <!-- Catálogo de Productos -->
+    <div class="section">
+      <h2>🛍️ Catálogo de Productos</h2>
+      <div class="catalogo">
+        <div class="producto">
+          <img src="https://github.com/KerenAtencio/img-productos-.gitkeep/blob/main/jabonturmahgw.jpeg?raw=true"
+                alt="Jabon Turmalina HGW"
+                width="200">
+          <p>Precio: $9.580 COP</p>
+          <select class="porcentaje-ganancia" onchange="calcularGanancia(this, 9580)">
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+            <option value="60">60%</option>
+            <option value="100">100%</option>
+          </select>
+          <p>Ganancia: <span class="ganancia-producto">$2,874</span></p>
+        </div>
+      
+        <div class="producto">
+          <img src="https://github.com/KerenAtencio/img-productos-.gitkeep/blob/main/img/pastadentalhgw.jpg?raw=true"
+                alt="GREEN WORLD HERBS TOOTHPASTE"
+                width="200">
+          <p>Precio: $15.966 COP</p>
+          <select class="porcentaje-ganancia" onchange="calcularGanancia(this, 15966)">
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+            <option value="60">60%</option>
+            <option value="100">100%</option>
+          </select>
+          <p>Ganancia: <span class="ganancia-producto">$4,789.8</span></p>
+        </div>
+        
+        <div class="producto">
+        <img src="https://github.com/KerenAtencio/img-productos-.gitkeep/blob/main/bluecandyhgw.jpeg?raw=true"
+         alt="Blue Candy HGW"
+         width="200">
+          <p>Precio: $12.773 COP</p>
+          <select class="porcentaje-ganancia" onchange="calcularGanancia(this, 12773)">
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+            <option value="60">60%</option>
+            <option value="100">100%</option>
+          </select>
+          <p>Ganancia: <span class="ganancia-producto">$3,831.9</span></p>
+        </div>
+
+        <div class="producto">
+          <img src="https://github.com/KerenAtencio/img-productos-.gitkeep/blob/main/toallashgw.jpg?raw=true"
+           alt="Toallas H"
+           width="200">
+          <p>Precio: $9.500 COP</p>
+          <select class="porcentaje-ganancia" onchange="calcularGanancia(this, 9500)">
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+            <option value="60">60%</option>
+            <option value="100">100%</option>
+          </select>
+          <p>Ganancia: <span class="ganancia-producto">$2,850</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+     <!-- Información Legal -->
+    <div class="container">
+    <div class="section">
+      <h2>⚖️ ¿Sabías que?</h2>
+      <div class="Archivos Semillero de líderes Valledupar HGW">
+     <a href="https://drive.google.com/drive/u/1/folders/1nC_81UDc9ZUoQ0HPkCg_7crBS4qlVWwr"
+     style="color: white;"font-size:0.5rem; text-decoration: none; vertical-align: middle;text-align: center;font-weight: bold;font-family: Poppins, sans-serif;">🧩Archivos Semillero de líderes Valledupar HGW</a>
+      <div class="info-legal">
+        <ol>
+          <li>Las redes de mercadeo están reguladas por la Ley 1700 de 2013.</li>
+          <li>Al 2023 en Colombia 2,3 millones de personas ejercian mercadeo en red como una fuente ingresos.</li>
+          <li>Los productos naturales tienen beneficios tributarios especiales.</li>
+          <li>El 30% de los productos de cuidado personal son de redes de mercadeo.</li>
+          <li>Las redes de mercadeo generan más de $1.2 billones anuales en Colombia.</li>
+        <div style="color: #FFFFFF;">
+        </div>
+        <a href="https://www.supersociedades.gov.co/actividad-multinivel" target="_blank"; style="color: white";> 🔍 Ver normatividad </a>
+       </div>
+       <div><strong>Fuente:</strong> Diario El País.com</div>
+       <div><strong>Fuente:</strong> SuperSociedades.gov</div>
+     </div>
+   </div>
+  </div>
+</div>
+
+<!-- Contenido de la pestaña Licencia de uso-->
+  <a href="https://wa.me/573135727768?text=Hola%2C%20necesito%20ayuda%20con%20el%20simulador" target="_blank"
+   style="color: white; font-size: 0.85rem; text-decoration: none;">
+</a>
+ </div>
+
+<!-- Calendario flotante -->
+<div id="calendarOverlay"></div>
+<div id="floatingCalendar">
+  <button id="calendarClose" onclick="hideCalendar()">✕</button>
+  <h3>Seleccionar Fecha</h3>
+  <input type="date" id="calendarInput" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;">
+  <button onclick="setSelectedDate()">Aceptar</button>
+</div>
+
+<script>
+// Variables globales
+let totales = { inicio: 0, venta: 0, recompra: 0, desarrollo: 0, equipo: 0 };
+let historial = [];
+let currentCalendarTarget = '';
+
+// Funciones para el calendario flotante
+function showCalendar(target) {
+  currentCalendarTarget = target;
+  document.getElementById('calendarOverlay').style.display = 'block';
+  document.getElementById('floatingCalendar').style.display = 'block';
+  
+  // Establecer fecha actual si el campo ya tiene valor
+  const currentValue = document.getElementById(target).value;
+  if (currentValue) {
+    document.getElementById('calendarInput').value = currentValue;
+  } else {
+    document.getElementById('calendarInput').valueAsDate = new Date();
+  }
+}
+
+function hideCalendar() {
+  document.getElementById('calendarOverlay').style.display = 'none';
+  document.getElementById('floatingCalendar').style.display = 'none';
+}
+
+function setSelectedDate() {
+  const dateInput = document.getElementById('calendarInput');
+  const selectedDate = dateInput.value;
+  
+  if (selectedDate && currentCalendarTarget) {
+    document.getElementById(currentCalendarTarget).value = selectedDate;
+  }
+  
+  hideCalendar();
+}
+
+// Funciones para la pestaña Balance
+function calcularInicioRapido() {
+  const bvAfiliado = parseFloat(document.getElementById('membresiaAfiliado').value) || 0;
+  const cantidadAfiliados = parseInt(document.getElementById('globalAfiliados').value) || 1;
+
+  if (isNaN(bvAfiliado)) {
+    document.getElementById('resultInicioRapido').innerText = 'Selecciona una membresía válida';
+    return 0;
+  }
+
+  const total = bvAfiliado * 0.10 * 3800 * cantidadAfiliados;
+  document.getElementById('resultInicioRapido').innerText = `$${total.toLocaleString()}`;
+  return total;
+}
+
+function limpiarInicioRapido() {
+  document.getElementById('membresiaAfiliado').value = '';
+  document.getElementById('globalAfiliados').value = '1'; // Puede fallar si `min=1`
+  document.getElementById('fechaInicio').value = '';
+  document.getElementById('idAfiliado').value = '';
+  document.getElementById('resultInicioRapido').innerText = '$0';
+}
+
+function calcularVentaBalance() {
+  const montoVenta = parseFloat(document.getElementById('valorCompra').value) || 0;
+  const porcentaje = parseFloat(document.getElementById('porcentajeGanancia').value) || 0;
+  const total = (montoVenta * porcentaje) / 100;
+  
+  document.getElementById('resultVenta').innerText = `$${total.toLocaleString()}`;
+  return total;
+}
+
+function calcularGananciaEstrategia() {
+  const ganancia = parseFloat(document.getElementById('ganancia3x3').value) || 0;
+  document.getElementById('resultEstrategia').innerText = `$${ganancia.toLocaleString()}`;
+  return ganancia;
+}
+
+function limpiarGanancia() {
+  document.getElementById('resultEstrategia').innerText = '$0';
+}
+
+function calcularBalanceBonos() {
+  const totalInicio = calcularInicioRapido();
+  const totalVenta = calcularVentaBalance();
+  const totalDesarrollo = calcularDesarrollo();
+  const totalEstrategia = calcularGananciaEstrategia();
+  
+  const totalGeneral = totalInicio + totalVenta + totalDesarrollo + totalEstrategia;
+  
+  document.getElementById('sumaTotal').innerText = `$${totalGeneral.toLocaleString('es-CO')}`;
+} 
+
+function limpiarTotalesBonos() {
+  document.getElementById('sumaTotal').innerText = '$0';
+}   
+
+// Función para cargar el PDF (sin cambios)
+function verPdf(event) {
+   const file = event.target.files[0];
+   const url = URL.createObjectURL(file);
+   const iframe = document.getElementById('visorPDF');
+   
+   // Forzar la carga del PDF incluso en pantalla completa
+   iframe.src = ""; // Limpiar primero
+   setTimeout(() => {
+      iframe.src = url; // Asignar la nueva URL
+   }, 100);
+}
+
+// Función para pantalla completa (corregida)
+function togglePDFFullscreen() {
+   const iframe = document.getElementById('visorPDF');
+   
+   if (!document.fullscreenElement) {
+      // Entrar en pantalla completa
+      if (iframe.requestFullscreen) {
+         iframe.requestFullscreen().catch(err => {
+            console.error("Error al activar pantalla completa:", err);
+         });
+      }
+   } else {
+      // Salir de pantalla completa
+      if (document.exitFullscreen) {
+         document.exitFullscreen();
+      }
+   }
+}
+
+// Funciones para la pestaña Entrenamiento
+function calcularDesarrolloEntrenamiento() {
+  const bv = parseFloat(document.getElementById('bvDesarrollo').value) || 0;
+  const factor = parseFloat(document.getElementById('membresiaDesarrollo').value);
+  let totalBV = bv;
+  let totalGanancia = 0;
+
+  if (document.getElementById('usarExtrasDesarrollo').value === 'si') {
+    const lineas = document.querySelectorAll('.linea-extra');
+    lineas.forEach((linea) => {
+      const bvLinea = parseFloat(linea.querySelector('.membresia-extra').value);
+      const cantidad = parseFloat(linea.querySelector('.cantidad-extra').value) || 0;
+      if (cantidad > 0) {
+        const subtotal = bvLinea * cantidad;
+        totalBV += subtotal;
+        totalGanancia += (subtotal * factor * 3800) / 2;
+      }
+    });
+  }
+
+  // Sumar la ganancia de la primera compra
+  totalGanancia += (bv * factor * 3800) / 2;
+  
+  document.getElementById('resDesarrollo').innerText = `$${totalGanancia.toLocaleString()}`;
+  document.getElementById('bvTotales').innerText = `${totalBV}`;
+  
+  return totalGanancia;
+}
+
+// Funciones generales
+function agregarFila() {
+  const tabla = document.getElementById('tablaRed');
+  const fila = document.createElement('tr');
+  for (let i = 0; i < 5; i++) {
+    const td = document.createElement('td');
+    const input = document.createElement('input');
+    td.appendChild(input);
+    fila.appendChild(td);
+  }
+  tabla.appendChild(fila);
+}
+
+function descargarExcel() {
+  const filas = [['ID','Nombre','Membresía','Rol','Teléfono']];
+  document.querySelectorAll('#tablaRed tr').forEach(tr => {
+    const row = [];
+    tr.querySelectorAll('input').forEach(input => row.push(input.value));
+    filas.push(row);
+  });
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  XLSX.utils.book_append_sheet(wb, ws, 'Red HGW');
+  XLSX.writeFile(wb, 'registro_hgw.xlsx');
+}
+
+ function limpiarTabla() {
+  const tabla = document.getElementById('tablaRed');
+  tabla.innerHTML = '';
+}
+
+function calcularInicio() {
+  const bv = parseFloat(document.getElementById('inicioMembresia').value);
+  const afiliados = parseInt(document.getElementById('inicioAfiliados').value);
+  const total = afiliados * bv * 0.10 * 3800;
+  totales.inicio = total;
+  document.getElementById('resInicio').innerText = `$${total.toLocaleString()}`;
+}
+
+function calcularVentaEntrenamiento() {
+  const monto = parseFloat(document.getElementById('ventaMonto').value);
+  const porcentaje = parseFloat(document.getElementById('ventaPorcentaje').value);
+  const total = monto * (porcentaje / 100);
+  totales.venta = total;
+  document.getElementById('resVenta').innerText = `$${total.toLocaleString()}`;
+}
+
+function calcularRecompra() {
+  const bv = parseFloat(document.getElementById('recompraBV').value);
+  const total = bv * 0.025 * 3800;
+  totales.recompra = total;
+  document.getElementById('resRecompra').innerText = `$${total.toLocaleString()}`;
+}
+
+function toggleExtrasDesarrollo() {
+  const val = document.getElementById('usarExtrasDesarrollo').value;
+  document.getElementById('extrasDesarrollo').style.display = val === 'si' ? 'block' : 'none';
+}
+
+function calcularEquipo() {
+  const bv1 = parseFloat(document.getElementById('bv1Equipo').value);
+  const bv2 = parseFloat(document.getElementById('bv2Equipo').value);
+  const porcentaje = parseFloat(document.getElementById('porcentajeEquipo').value);
+  const base = (Math.min(bv1, bv2) * porcentaje);
+  const total = (base * 3800) / 2;
+  totales.equipo = total;
+  document.getElementById('resEquipo').innerText = `$${total.toLocaleString()}`;
+}
+
+function calcularBonoDesarrollo(rangoUsuario, rangoAfiliado) {
+  const matrizFactores = {
+    "pre-junior": { "pre-junior": 0.20, "junior": 0.20, "senior": 0.20, "master": 0.20 },
+    "junior":     { "pre-junior": 0.20, "junior": 0.50, "senior": 0.50, "master": 0.50 },
+    "senior":     { "pre-junior": 0.20, "junior": 0.50, "senior": 1.50, "master": 1.50 },
+    "master":     { "pre-junior": 0.20, "junior": 0.50, "senior": 1.50, "master": 3.00 }
+  };
+
+  const usuario = traducirRango(rangoUsuario);
+  const afiliado = traducirRango(rangoAfiliado);
+
+  if (!usuario || !afiliado) return 0; // Si alguno no está definido, retorna 0
+
+  const factor = matrizFactores[usuario]?.[afiliado] || 0;
+  return (factor * 3800) / 2;
+}
+
+function traducirRango(valor) {
+  if (!valor) return null;
+  
+  switch (valor.toLowerCase()) {
+    case "prejr": return "pre-junior";
+    case "jr": return "junior";
+    case "sr": return "senior";
+    case "master": return "master";
+    default: return null;
+  }
+}
+
+function calcularDesarrollo() {
+  const rangoUsuario = document.getElementById('memUsuario').value;
+  const rangoAfiliado = document.getElementById('memAfiliado').value;
+
+  const resultado = calcularBonoDesarrollo(rangoUsuario, rangoAfiliado);
+
+  const output = document.getElementById('resultDesarrollo');
+
+  if (resultado === 0) {
+    output.innerText = 'Selecciona ambos rangos para calcular';
+    return 0;
+  } else {
+    output.innerText = `$${resultado.toFixed(2)}`;
+    return resultado;
+  }
+}
+
+function limpiarBonoDesarrollo() {
+  document.getElementById('memUsuario').selectedIndex = 0;
+  document.getElementById('memAfiliado').selectedIndex = 0;
+  document.getElementById('resultDesarrollo').innerText = '$0';
+  document.getElementById('nivelDesarrollo').value = '1'; // Valor por defecto
+} 
+
+function calcularTotalesEntrenamiento() {
+  // Asegurarse de calcular desarrollo con la nueva función
+  totales.desarrollo = calcularDesarrolloEntrenamiento();
+  
+  const total = Object.values(totales).reduce((a,b)=>a+b,0);
+  historial.push(total);
+  const mensual = historial.reduce((a,b)=>a+b,0);
+  document.getElementById('totalDiarioEntrenamiento').innerText = `$${total.toLocaleString()}`;
+  document.getElementById('totalDiarioEntrenamiento2').innerText = `$${total.toLocaleString()}`;
+  document.getElementById('totalMensualEntrenamiento').innerText = `$${mensual.toLocaleString()}`;
+  document.getElementById('totalMensualEntrenamiento2').innerText = `$${mensual.toLocaleString()}`;
+}
+
+function limpiarBonos() {
+  document.querySelectorAll('input').forEach(el=>{
+    if(el.type === 'number') el.value = '0';
+    else if(el.type !== 'hidden' && el.id !== 'globalUserId') el.value = '';
+  });
+  document.querySelectorAll('.result span').forEach(el=>el.innerText='');
+  Object.keys(totales).forEach(k=>totales[k]=0);
+}
+
+function guardarTotales() {
+  alert('Guardado en historial diario 💾');
+}
+
+function descargarCSV() {
+  const csv = 'Bono,Valor\n' + Object.entries(totales).map(([k,v])=>`${k},${v}`).join('\n');
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'bonos_totales.csv';
+  link.click();
+}
+
+function guardarBono(tipo) {
+  alert(`Bono ${tipo} guardado correctamente!`);
+}
+
+function limpiarBono(tipo) {
+  document.querySelectorAll(`#${tipo} input, #${tipo} select`).forEach(element => {
+    if (element.type !== 'hidden' && element.id !== 'idUsuario' + tipo.charAt(0).toUpperCase() + tipo.slice(1)) {
+      element.value = '';
+      if (element.type === 'number') element.value = '0';
+    }
+  });
+  
+  // Restablecer el resultado a $0
+  const resultElement = document.getElementById(`result${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+  if (resultElement) {
+    resultElement.innerText = '$0';
+  }
+}
+
+function calcularGanancia(selectElement, precio) {
+  const porcentaje = parseFloat(selectElement.value);
+  const ganancia = precio * (porcentaje / 100);
+  selectElement.parentElement.querySelector('.ganancia-producto').textContent = `$${ganancia.toLocaleString()}`;
+}
+
+function toggleFullscreen(elementSelector) {
+  const element = document.querySelector(elementSelector);
+  const iframe = element.querySelector('iframe'); // Obtenemos el iframe dentro del contenedor
+  
+  if (!document.fullscreenElement) {
+    // Solicitar pantalla completa para el iframe
+    const target = iframe || element;
+    
+    if (target.requestFullscreen) {
+      target.requestFullscreen();
+    } else if (target.webkitRequestFullscreen) { // Safari
+      target.webkitRequestFullscreen();
+    } else if (target.msRequestFullscreen) { // IE11
+      target.msRequestFullscreen();
+    }
+  } else {
+    // Salir de pantalla completa
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { // Safari
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE11
+      document.msExitFullscreen();
+    }
+  }
+}
+
+function openTab(evt, tabName) {
+    // Detener si ya está activa
+    if(evt.currentTarget.classList.contains('active')) return;
+    
+    // Ocultar todo
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Desactivar botones
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activar la seleccionada
+    const tab = document.getElementById(tabName);
+    if(tab) {
+        tab.classList.add('active');
+        evt.currentTarget.classList.add('active');
+        
+        // Inicializar componentes específicos
+        if(tabName === 'Balance' && typeof calcularBalanceBonos === 'function') {
+            calcularBalanceBonos();
+        }
+    }
+}
+
+// Funciones para el árbol genealógico
+const MAX_LEVELS = 10;
+const MAX_BV = 51150;
+const BV_POR_PERSONA = 50;
+const VALOR_POR_BV = 3800;
+const PORCENTAJE = 0.025;
+
+let currentLevels = 3;
+let personasChart = null;
+let bvChart = null;
+let arbolYaInicializado = false;
+
+function initTree() {
+    const treeContainer = document.getElementById('tree');
+    treeContainer.innerHTML = '';
+    
+    for (let level = 1; level <= currentLevels; level++) {
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'level';
+        levelDiv.id = `level-${level}`;
+        
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'level-label';
+        labelDiv.textContent = `Nivel ${level}`;
+        levelDiv.appendChild(labelDiv);
+        
+        const nodesCount = Math.pow(2, level-1);
+        
+        for (let i = 0; i < nodesCount; i++) {
+            const nodeId = `node-${level}-${i}`;
+            
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'node';
+            nodeDiv.id = nodeId;
+            
+            const nodeBox = document.createElement('div');
+            nodeBox.className = 'node-box';
+            nodeBox.textContent = `N${level}.${i+1}`;
+            
+            // Conectores
+            if (level > 1) {
+                const connector = document.createElement('div');
+                connector.className = 'connector vertical-connector';
+                nodeDiv.appendChild(connector);
+                
+                if (i % 2 === 0) {
+                    const hConnector = document.createElement('div');
+                    hConnector.className = 'connector horizontal-connector';
+                    hConnector.style.width = '50%';
+                    hConnector.style.left = '50%';
+                    nodeDiv.appendChild(hConnector);
+                } else {
+                    const hConnector = document.createElement('div');
+                    hConnector.className = 'connector horizontal-connector';
+                    hConnector.style.width = '50%';
+                    hConnector.style.right = '50%';
+                    nodeDiv.appendChild(hConnector);
+                }
+            }
+            
+            nodeDiv.appendChild(nodeBox);
+            levelDiv.appendChild(nodeDiv);
+        }
+        
+        treeContainer.appendChild(levelDiv);
+    }
+    
+    updateCharts();
+}
+
+function addLevel() {
+    if (currentLevels < MAX_LEVELS) {
+        currentLevels++;
+        initTree();
+    } else {
+        alert(`🎯 ¡Máximo ${MAX_LEVELS} niveles alcanzado!`);
+    }
+}
+
+function removeLevel() {
+    if (currentLevels > 1) {
+        currentLevels--;
+        initTree();
+    } else {
+        alert(`⚠️ ¡Debe haber al menos 1 nivel!`);
+    }
+}
+
+function clearAll() {
+    if (confirm('¿Borrar todos los datos? 🗑️')) {
+        currentLevels = 3;
+        initTree();
+    }
+}
+
+function updateCharts() {
+    const personasCtx = document.getElementById('personasChart').getContext('2d');
+    const bvCtx = document.getElementById('bvChart').getContext('2d');
+    
+    const labels = [];
+    const personasData = [];
+    let totalBV = 0;
+    let bvData = [];
+    let acumuladoAfiliados = 0;
+
+    // Calcular datos
+    for (let level = 1; level <= currentLevels; level++) {
+        labels.push(`Nivel ${level}`);
+        const personas = Math.pow(2, level-1);
+        const bvNivel = personas * BV_POR_PERSONA;
+        acumuladoAfiliados += personas;  // <--- Suma acumulada
+        totalBV += bvNivel;
+        
+        personasData.push(personas);
+        bvData.push(bvNivel);
+    }
+
+    // Calcular porcentaje completado
+    const porcentajeCompletado = Math.min(100, (totalBV / MAX_BV) * 100);
+    const valorEnPesos = totalBV * VALOR_POR_BV * PORCENTAJE;
+    
+    // Actualizar elementos de datos
+    document.getElementById('totalBV').textContent = `${totalBV} BV`;
+    document.getElementById('totalPesos').textContent = `$${valorEnPesos.toLocaleString('es-CO')} COP`;
+    document.getElementById('progressPercent').textContent = `${porcentajeCompletado.toFixed(1)}%`;
+    document.getElementById(`acumuladoAfiliados`).textContent = acumuladoAfiliados;
+    document.getElementById('currentBV').textContent = totalBV;
+    document.getElementById('progressFill').style.width = `${porcentajeCompletado}%`;
+    
+    // Destruir gráficos anteriores si existen
+    if (personasChart) personasChart.destroy();
+    if (bvChart) bvChart.destroy();
+    
+    // Gráfico de personas (barras)
+    personasChart = new Chart(personasCtx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Personas',
+                data: personasData,
+                backgroundColor: '#4EA72E',
+                borderColor: '#ECECEC',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.raw} afiliados`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#666' },
+                    grid: { color: '#eee' }
+                },
+                x: {
+                    ticks: { color: '#666' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    
+    // Gráfico de BV (circular)
+    bvChart = new Chart(bvCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['BV Obtenidos', 'BV Restantes'],
+            datasets: [{
+                data: [totalBV, Math.max(0, MAX_BV - totalBV)],
+                backgroundColor: ['#4EA72E', '#ECECEC'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw + ' BV';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function toggleArbol() {
+  showTreeModal();
+}
+
+function showTreeModal() {
+  document.getElementById('treeOverlay').style.display = 'block';
+  document.getElementById('treeModal').style.display = 'block';
+  
+  if (!arbolYaInicializado) {
+    setTimeout(() => {
+      initTree();
+      arbolYaInicializado = true;
+    }, 50);
+  }
+}
+
+function hideTreeModal() {
+  document.getElementById('treeOverlay').style.display = 'none';
+  document.getElementById('treeModal').style.display = 'none';
+}
+
+// Inicialización cuando el DOM esté cargado
+document.addEventListener("DOMContentLoaded", () => {
+  // Activar primera pestaña
+  const activeTab = document.querySelector('.tab-button.active');
+  if (activeTab) {
+    const tabName = activeTab.getAttribute('onclick').match(/'([^']+)'/)[1];
+    document.getElementById(tabName).classList.add('active');
+  }
+  
+  // Establecer fecha global por defecto
+  const today = new Date();
+  const dateString = today.toISOString().split('T')[0];
+  document.getElementById('globalDate').value = dateString;
+});
+
+// Reemplazar las funciones relacionadas con el árbol con estas versiones mejoradas
+
+let isTreeFullscreen = false;
+let treeModalInitialized = false;
+
+function toggleArbol() {
+  if (!treeModalInitialized) {
+    initTree();
+    treeModalInitialized = true;
+  }
+  showTreeModal();
+}
+
+function showTreeModal() {
+  document.getElementById('treeOverlay').style.display = 'block';
+  document.getElementById('treeModal').style.display = 'block';
+  
+  // Asegurarse de que el árbol se redibuje correctamente
+  setTimeout(() => {
+    if (personasChart) personasChart.resize();
+    if (bvChart) bvChart.resize();
+  }, 100);
+}
+
+function hideTreeModal() {
+  document.getElementById('treeOverlay').style.display = 'none';
+  document.getElementById('treeModal').style.display = 'none';
+  
+  // Si está en pantalla completa, salir de ese modo al cerrar
+  if (isTreeFullscreen) {
+    toggleTreeFullscreen();
+  }
+}
+
+function toggleTreeFullscreen() {
+  const treeModal = document.getElementById('treeModal');
+  
+  // Redibujar gráficos después del cambio
+  setTimeout(() => {
+    if (personasChart) personasChart.resize();
+    if (bvChart) bvChart.resize();
+  }, 100);
+}
+
+// Función para manejar el redimensionamiento
+function handleTreeResize() {
+  if (personasChart) personasChart.resize();
+  if (bvChart) bvChart.resize();
+}
+
+// Agregar event listeners
+window.addEventListener('resize', handleTreeResize);
+
+// Inicializar el árbol cuando se carga la página
+document.addEventListener("DOMContentLoaded", () => {
+  // Configurar el botón del árbol en la pestaña de Entrenamiento
+  const treeButton = document.querySelector('[onclick="toggleArbol()"]');
+  if (treeButton) {
+    treeButton.onclick = toggleArbol;
+  }
+});
+
+</script>
+
+<!-- ====== COLOCAR EL MODAL DEL ÁRBOL AQUÍ ====== -->
+<!-- Reemplazar el modal existente con este código -->
+<div id="treeOverlay" class="tree-modal-overlay"></div>
+<div id="treeModal" class="tree-modal-content">
+  <button id="treeClose" onclick="hideTreeModal()">✕</button>
+  <h1 style="font-size: 1.8rem; color: #2E7D32; margin-top: 0; margin-bottom: 15px; text-align: center;">
+    🌿 Árbol Genealógico | Cálculo BV y Ganancias
+  </h1>
+    <div class="tree-grid">
+      <!-- Panel del árbol -->
+      <div class="tree-section">
+        <div class="controls">
+          <button onclick="addLevel()">➕ Nivel</button>
+          <button onclick="removeLevel()">➖ Nivel</button>
+          <button onclick="clearAll()">🧹 Limpiar</button>
+        </div>
+        <div class="tree-container">
+          <div class="tree" id="tree"></div>
+        </div>
+      </div>
+      
+      <!-- Panel de métricas -->
+      <div class="metrics-section">
+      <h3 style="color: #4CAF50; font-weight: normal; margin-bottom: 5px; text-align: center;font-weight: bold;">
+        Métricas de Crecimiento
+      </h3>
+        <div class="chart-container">
+          <canvas id="personasChart"></canvas>
+          <div class="chart-label">Afiliados por Nivel</div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="bvChart"></canvas>
+          <div class="chart-label">Progreso BV</div>
+        </div>
+        
+        <div class="data-box">
+          <div class="data-item">
+            <span class="data-label">BV Generados:</span>
+            <span class="data-value" id="totalBV">0 BV</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Valor en Pesos:</span>
+            <span class="data-value" id="totalPesos">$0 COP</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Acumulado Afiliados:</span>
+            <span class="data-value" id="acumuladoAfiliados">0 Afiliados</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Progreso: <span id="progressPercent">0%</span></span>
+              <span><span id="currentBV">0</span>/51150 BV</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<footer style="text-align: center; background-color: #003300; color: #e0ffe0; font-family: 'Poppins', sans-serif; font-size: 13.5px; padding: 1rem; margin-top: 2rem; border-radius: 6px;">
+  <div><strong>Modelo:</strong> SimHGW1</div>
+  <div><strong>Email:</strong> pibvaliu@gmail.com</div>
+ <div style="color: #FFFFFF;">
+<a href="https://wa.me/573135727768?text=Hola%2C%20necesito%20ayuda%20con%20el%20simulador" target="_blank"
+font-size: 0.85rem">
+<a href="#" style="color: white; text-decoration: underline;">Enlace a contacto y ayuda</a>
+</a>
+  <div><strong>🌎Ubicación:</strong> Valledupar - Zona Centro Historico</div>
+  <div><strong>©Derechos de autor:</strong> DataCaval</div>
+</footer>
+</html>
